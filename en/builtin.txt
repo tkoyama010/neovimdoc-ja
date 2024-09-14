@@ -169,17 +169,16 @@ assert_equal({expected}, {actual} [, {msg}])                    *assert_equal()*
 		added to |v:errors| and 1 is returned.  Otherwise zero is
 		returned. |assert-return|
 		The error is in the form "Expected {expected} but got
-		{actual}".  When {msg} is present it is prefixed to that,
-		along with the location of the assert when run from a script.
+		{actual}".  When {msg} is present it is prefixed to that.
 
 		There is no automatic conversion, the String "4" is different
 		from the Number 4.  And the number 4 is different from the
 		Float 4.0.  The value of 'ignorecase' is not used here, case
 		always matters.
 		Example: >vim
-			call assert_equal('foo', 'bar', 'baz')
-<		Will add the following to |v:errors|:
-			test.vim line 12: baz: Expected 'foo' but got 'bar' ~
+			assert_equal('foo', 'bar')
+<		Will result in a string to be added to |v:errors|:
+			test.vim line 12: Expected 'foo' but got 'bar' ~
 
 assert_equalfile({fname-one}, {fname-two})                  *assert_equalfile()*
 		When the files {fname-one} and {fname-two} do not contain
@@ -211,25 +210,25 @@ assert_fails({cmd} [, {error} [, {msg} [, {lnum} [, {context}]]]])
 		When {error} is a string it must be found literally in the
 		first reported error. Most often this will be the error code,
 		including the colon, e.g. "E123:". >vim
-			call assert_fails('bad cmd', 'E987:')
+			assert_fails('bad cmd', 'E987:')
 <
 		When {error} is a |List| with one or two strings, these are
 		used as patterns.  The first pattern is matched against the
 		first reported error: >vim
-			call assert_fails('cmd', ['E987:.*expected bool'])
+			assert_fails('cmd', ['E987:.*expected bool'])
 <		The second pattern, if present, is matched against the last
 		reported error.  To only match the last error use an empty
 		string for the first error: >vim
-			call assert_fails('cmd', ['', 'E987:'])
+			assert_fails('cmd', ['', 'E987:'])
 <
 		If {msg} is empty then it is not used.  Do this to get the
 		default message when passing the {lnum} argument.
-							*E1115*
+
 		When {lnum} is present and not negative, and the {error}
 		argument is present and matches, then this is compared with
 		the line number at which the error was reported. That can be
 		the line number in a function or in a script.
-							*E1116*
+
 		When {context} is present it is used as a pattern and matched
 		against the context (script name or function name) where
 		{lnum} is located in.
@@ -241,8 +240,7 @@ assert_false({actual} [, {msg}])                                *assert_false()*
 		When {actual} is not false an error message is added to
 		|v:errors|, like with |assert_equal()|.
 		The error is in the form "Expected False but got {actual}".
-		When {msg} is present it is prefixed to that, along with the
-		location of the assert when run from a script.
+		When {msg} is present it is prepended to that.
 		Also see |assert-return|.
 
 		A value is false when it is zero. When {actual} is not a
@@ -260,8 +258,7 @@ assert_match({pattern}, {actual} [, {msg}])                     *assert_match()*
 		When {pattern} does not match {actual} an error message is
 		added to |v:errors|.  Also see |assert-return|.
 		The error is in the form "Pattern {pattern} does not match
-		{actual}".  When {msg} is present it is prefixed to that,
-		along with the location of the assert when run from a script.
+		{actual}".  When {msg} is present it is prefixed to that.
 
 		{pattern} is used as with |expr-=~|: The matching is always done
 		like 'magic' was set and 'cpoptions' is empty, no matter what
@@ -272,7 +269,7 @@ assert_match({pattern}, {actual} [, {msg}])                     *assert_match()*
 		Use both to match the whole text.
 
 		Example: >vim
-			call assert_match('^f.*o$', 'foobar')
+			assert_match('^f.*o$', 'foobar')
 <		Will result in a string to be added to |v:errors|:
 			test.vim line 12: Pattern '^f.*o$' does not match 'foobar' ~
 
@@ -301,8 +298,7 @@ assert_true({actual} [, {msg}])                                  *assert_true()*
 		Also see |assert-return|.
 		A value is |TRUE| when it is a non-zero number or |v:true|.
 		When {actual} is not a number or |v:true| the assert fails.
-		When {msg} is given it is prefixed to the default message,
-		along with the location of the assert when run from a script.
+		When {msg} is given it precedes the default message.
 
 atan({expr})                                                            *atan()*
 		Return the principal value of the arc tangent of {expr}, in
@@ -705,33 +701,33 @@ clearmatches([{win}])                                           *clearmatches()*
 
 col({expr} [, {winid}])                                                  *col()*
 		The result is a Number, which is the byte index of the column
-		position given with {expr}.
-		For accepted positions see |getpos()|.
-		When {expr} is "$", it means the end of the cursor line, so
-		the result is the number of bytes in the cursor line plus one.
+		position given with {expr}.  The accepted positions are:
+		    .	    the cursor position
+		    $	    the end of the cursor line (the result is the
+			    number of bytes in the cursor line plus one)
+		    'x	    position of mark x (if the mark is not set, 0 is
+			    returned)
+		    v       In Visual mode: the start of the Visual area (the
+			    cursor is the end).  When not in Visual mode
+			    returns the cursor position.  Differs from |'<| in
+			    that it's updated right away.
 		Additionally {expr} can be [lnum, col]: a |List| with the line
 		and column number. Most useful when the column is "$", to get
 		the last column of a specific line.  When "lnum" or "col" is
 		out of range then col() returns zero.
-
 		With the optional {winid} argument the values are obtained for
 		that window instead of the current window.
-
 		To get the line number use |line()|.  To get both use
 		|getpos()|.
-
 		For the screen column position use |virtcol()|.  For the
 		character position use |charcol()|.
-
 		Note that only marks in the current file can be used.
-
 		Examples: >vim
 			echo col(".")			" column of cursor
 			echo col("$")			" length of cursor line plus one
 			echo col("'t")			" column of mark t
 			echo col("'" .. markname)	" column of mark markname
-<
-		The first column is 1.  Returns 0 if {expr} is invalid or when
+<		The first column is 1.  Returns 0 if {expr} is invalid or when
 		the window with ID {winid} is not found.
 		For an uppercase mark the column may actually be in another
 		buffer.
@@ -1256,26 +1252,19 @@ executable({expr})                                                *executable()*
 		This function checks if an executable with the name {expr}
 		exists.  {expr} must be the name of the program without any
 		arguments.
-
 		executable() uses the value of $PATH and/or the normal
-		searchpath for programs.
-							*PATHEXT*
+		searchpath for programs.		*PATHEXT*
 		On MS-Windows the ".exe", ".bat", etc. can optionally be
 		included.  Then the extensions in $PATHEXT are tried.  Thus if
 		"foo.exe" does not exist, "foo.exe.bat" can be found.  If
-		$PATHEXT is not set then ".com;.exe;.bat;.cmd" is used.  A dot
+		$PATHEXT is not set then ".exe;.com;.bat;.cmd" is used.  A dot
 		by itself can be used in $PATHEXT to try using the name
 		without an extension.  When 'shell' looks like a Unix shell,
 		then the name is also tried without adding an extension.
 		On MS-Windows it only checks if the file exists and is not a
 		directory, not if it's really executable.
-		On MS-Windows an executable in the same directory as the Vim
-		executable is always found (it's added to $PATH at |startup|).
-					*NoDefaultCurrentDirectoryInExePath*
-		On MS-Windows an executable in Vim's current working directory
-		is also normally found, but this can be disabled by setting
-		the $NoDefaultCurrentDirectoryInExePath environment variable.
-
+		On Windows an executable in the same directory as Vim is
+		always found (it is added to $PATH at |startup|).
 		The result is a Number:
 			1	exists
 			0	does not exist
@@ -1616,15 +1605,6 @@ feedkeys({string} [, {mode}])                                       *feedkeys()*
 			a little later.  Useful for testing CursorHoldI.
 
 		Return value is always 0.
-
-filecopy({from}, {to})                                              *filecopy()*
-		Copy the file pointed to by the name {from} to {to}. The
-		result is a Number, which is |TRUE| if the file was copied
-		successfully, and |FALSE| when it failed.
-		If a file with name {to} already exists, it will fail.
-		Note that it does not handle directories (yet).
-
-		This function is not available in the |sandbox|.
 
 filereadable({file})                                            *filereadable()*
 		The result is a Number, which is |TRUE| when a file with the
@@ -2048,17 +2028,17 @@ garbagecollect([{atexit}])                                    *garbagecollect()*
 		it's safe to perform.  This is when waiting for the user to
 		type a character.
 
-get({list}, {idx} [, {default}])                              *get()* *get()-list*
+get({list}, {idx} [, {default}])                                         *get()*
 		Get item {idx} from |List| {list}.  When this item is not
 		available return {default}.  Return zero when {default} is
 		omitted.
 
-get({blob}, {idx} [, {default}])                                    *get()-blob*
+get({blob}, {idx} [, {default}])
 		Get byte {idx} from |Blob| {blob}.  When this byte is not
 		available return {default}.  Return -1 when {default} is
 		omitted.
 
-get({dict}, {key} [, {default}])                                    *get()-dict*
+get({dict}, {key} [, {default}])
 		Get item with key {key} from |Dictionary| {dict}.  When this
 		item is not available return {default}.  Return zero when
 		{default} is omitted.  Useful example: >vim
@@ -2066,26 +2046,13 @@ get({dict}, {key} [, {default}])                                    *get()-dict*
 <		This gets the value of g:var_name if it exists, and uses
 		"default" when it does not exist.
 
-get({func}, {what})                                                 *get()-func*
-		Get item {what} from |Funcref| {func}.  Possible values for
+get({func}, {what})
+		Get item {what} from Funcref {func}.  Possible values for
 		{what} are:
-		  "name"    The function name
-		  "func"    The function
-		  "dict"    The dictionary
-		  "args"    The list with arguments
-		  "arity"   A dictionary with information about the number of
-			    arguments accepted by the function (minus the
-			    {arglist}) with the following fields:
-				required    the number of positional arguments
-				optional    the number of optional arguments,
-					    in addition to the required ones
-				varargs     |TRUE| if the function accepts a
-					    variable number of arguments |...|
-
-				Note: There is no error, if the {arglist} of
-				the Funcref contains more arguments than the
-				Funcref expects, it's not validated.
-
+			"name"	The function name
+			"func"	The function
+			"dict"	The dictionary
+			"args"	The list with arguments
 		Returns zero on error.
 
 getbufinfo([{buf}])                                               *getbufinfo()*
@@ -2432,7 +2399,6 @@ getcompletion({pat}, {type} [, {filtered}])                    *getcompletion()*
 		customlist,{func} custom completion, defined via {func}
 		diff_buffer	|:diffget| and |:diffput| completion
 		dir		directory names
-		dir_in_path	directory names in |'cdpath'|
 		environment	environment variable names
 		event		autocommand events
 		expression	Vim expression
@@ -2773,34 +2739,9 @@ getpid()                                                              *getpid()*
 		This is a unique number, until Vim exits.
 
 getpos({expr})                                                        *getpos()*
-		Get the position for String {expr}.
-		The accepted values for {expr} are:
-		    .	    The cursor position.
-		    $	    The last line in the current buffer.
-		    'x	    Position of mark x (if the mark is not set, 0 is
-			    returned for all values).
-		    w0	    First line visible in current window (one if the
-			    display isn't updated, e.g. in silent Ex mode).
-		    w$	    Last line visible in current window (this is one
-			    less than "w0" if no lines are visible).
-		    v	    When not in Visual mode, returns the cursor
-			    position.  In Visual mode, returns the other end
-			    of the Visual area.  A good way to think about
-			    this is that in Visual mode "v" and "." complement
-			    each other.  While "." refers to the cursor
-			    position, "v" refers to where |v_o| would move the
-			    cursor.  As a result, you can use "v" and "."
-			    together to work on all of a selection in
-			    characterwise Visual mode.  If the cursor is at
-			    the end of a characterwise Visual area, "v" refers
-			    to the start of the same Visual area.  And if the
-			    cursor is at the start of a characterwise Visual
-			    area, "v" refers to the end of the same Visual
-			    area.  "v" differs from |'<| and |'>| in that it's
-			    updated right away.
-		Note that a mark in another file can be used.  The line number
-		then applies to another buffer.
-
+		Get the position for String {expr}.  For possible values of
+		{expr} see |line()|.  For getting the cursor position see
+		|getcurpos()|.
 		The result is a |List| with four numbers:
 		    [bufnum, lnum, col, off]
 		"bufnum" is zero, unless a mark like '0 or 'A is used, then it
@@ -2811,25 +2752,20 @@ getpos({expr})                                                        *getpos()*
 		it is the offset in screen columns from the start of the
 		character.  E.g., a position within a <Tab> or after the last
 		character.
-
-		For getting the cursor position see |getcurpos()|.
-		The column number in the returned List is the byte position
-		within the line. To get the character position in the line,
-		use |getcharpos()|.
-
 		Note that for '< and '> Visual mode matters: when it is "V"
 		(visual line mode) the column of '< is zero and the column of
 		'> is a large number equal to |v:maxcol|.
+		The column number in the returned List is the byte position
+		within the line. To get the character position in the line,
+		use |getcharpos()|.
 		A very large column number equal to |v:maxcol| can be returned,
 		in which case it means "after the end of the line".
 		If {expr} is invalid, returns a list with all zeros.
-
 		This can be used to save and restore the position of a mark: >vim
 			let save_a_mark = getpos("'a")
 			" ...
 			call setpos("'a", save_a_mark)
-<
-		Also see |getcharpos()|, |getcurpos()| and |setpos()|.
+<		Also see |getcharpos()|, |getcurpos()| and |setpos()|.
 
 getqflist([{what}])                                                *getqflist()*
 		Returns a |List| with all the current quickfix errors.  Each
@@ -2994,14 +2930,14 @@ getregion({pos1}, {pos2} [, {opts}])                               *getregion()*
 		The optional argument {opts} is a Dict and supports the
 		following items:
 
-			type		Specify the region's selection type.
-					See |getregtype()| for possible values,
-					except that the width can be omitted
-					and an empty string cannot be used.
-					(default: "v")
+			type		Specify the region's selection type
+					(default: "v"):
+			    "v"		for |charwise| mode
+			    "V"		for |linewise| mode
+			    "<CTRL-V>"	for |blockwise-visual| mode
 
 			exclusive	If |TRUE|, use exclusive selection
-					for the end position.
+					for the end position
 					(default: follow 'selection')
 
 		You can get the last selection type by |visualmode()|.
@@ -3032,38 +2968,6 @@ getregion({pos1}, {pos2} [, {opts}])                               *getregion()*
 			\ <Cmd>echom getregion(
 			\ getpos('v'), getpos('.'), #{ type: mode() })<CR>
 <
-
-getregionpos({pos1}, {pos2} [, {opts}])                         *getregionpos()*
-		Same as |getregion()|, but returns a list of positions
-		describing the buffer text segments bound by {pos1} and
-		{pos2}.
-		The segments are a pair of positions for every line: >
-			[[{start_pos}, {end_pos}], ...]
-<
-		The position is a |List| with four numbers:
-		    [bufnum, lnum, col, off]
-		"bufnum" is the buffer number.
-		"lnum" and "col" are the position in the buffer.  The first
-		column is 1.
-		If the "off" number of a starting position is non-zero, it is
-		the offset in screen columns from the start of the character.
-		E.g., a position within a <Tab> or after the last character.
-		If the "off" number of an ending position is non-zero, it is
-		the offset of the character's first cell not included in the
-		selection, otherwise all its cells are included.
-
-		Apart from the options supported by |getregion()|, {opts} also
-		supports the following:
-
-			eol		If |TRUE|, indicate positions beyond
-					the end of a line with "col" values
-					one more than the length of the line.
-					If |FALSE|, positions are limited
-					within their lines, and if a line is
-					empty or the selection is entirely
-					beyond the end of a line, a "col"
-					value of 0 is used for both positions.
-					(default: |FALSE|)
 
 getregtype([{regname}])                                           *getregtype()*
 		The result is a String, which is type of register {regname}.
@@ -3875,21 +3779,6 @@ invert({expr})                                                        *invert()*
 			let bits = invert(bits)
 <
 
-isabsolutepath({path})                                        *isabsolutepath()*
-		The result is a Number, which is |TRUE| when {path} is an
-		absolute path.
-		On Unix, a path is considered absolute when it starts with '/'.
-		On MS-Windows, it is considered absolute when it starts with an
-		optional drive prefix and is followed by a '\' or '/'. UNC paths
-		are always absolute.
-		Example: >vim
-			echo isabsolutepath('/usr/share/')	" 1
-			echo isabsolutepath('./foobar')		" 0
-			echo isabsolutepath('C:\Windows')	" 1
-			echo isabsolutepath('foobar')		" 0
-			echo isabsolutepath('\\remote\file')	" 1
-<
-
 isdirectory({directory})                                         *isdirectory()*
 		The result is a Number, which is |TRUE| when a directory
 		with the name {directory} exists.  If {directory} doesn't
@@ -3932,10 +3821,6 @@ items({dict})                                                          *items()*
 			for [key, value] in items(mydict)
 			   echo key .. ': ' .. value
 			endfor
-<
-		A List or a String argument is also supported.  In these
-		cases, items() returns a List with the index and the value at
-		the index.
 
 jobpid({job})                                                         *jobpid()*
 		Return the PID (process id) of |job-id| {job}.
@@ -4174,16 +4059,28 @@ libcallnr({libname}, {funcname}, {argument})                       *libcallnr()*
 <
 
 line({expr} [, {winid}])                                                *line()*
-		See |getpos()| for accepted positions.
-
+		The result is a Number, which is the line number of the file
+		position given with {expr}.  The {expr} argument is a string.
+		The accepted positions are:
+		    .	    the cursor position
+		    $	    the last line in the current buffer
+		    'x	    position of mark x (if the mark is not set, 0 is
+			    returned)
+		    w0	    first line visible in current window (one if the
+			    display isn't updated, e.g. in silent Ex mode)
+		    w$	    last line visible in current window (this is one
+			    less than "w0" if no lines are visible)
+		    v	    In Visual mode: the start of the Visual area (the
+			    cursor is the end).  When not in Visual mode
+			    returns the cursor position.  Differs from |'<| in
+			    that it's updated right away.
+		Note that a mark in another file can be used.  The line number
+		then applies to another buffer.
 		To get the column number use |col()|.  To get both use
 		|getpos()|.
-
 		With the optional {winid} argument the values are obtained for
 		that window instead of the current window.
-
 		Returns 0 for invalid values of {expr} and {winid}.
-
 		Examples: >vim
 			echo line(".")			" line number of the cursor
 			echo line(".", winid)		" idem, in window "winid"
@@ -4361,7 +4258,6 @@ maparg({name} [, {mode} [, {abbr} [, {dict}]]])                       *maparg()*
 		  "lhsrawalt" The {lhs} of the mapping as raw bytes, alternate
 			      form, only present when it differs from "lhsraw"
 		  "rhs"	     The {rhs} of the mapping as typed.
-		  "callback" Lua function, if RHS was defined as such.
 		  "silent"   1 for a |:map-silent| mapping, else 0.
 		  "noremap"  1 if the {rhs} of the mapping is not remappable.
 		  "script"   1 if mapping was defined with <script>.
@@ -4627,10 +4523,10 @@ matchadd({group}, {pattern} [, {priority} [, {id} [, {dict}]]])
 matchaddpos({group}, {pos} [, {priority} [, {id} [, {dict}]]])   *matchaddpos()*
 		Same as |matchadd()|, but requires a list of positions {pos}
 		instead of a pattern. This command is faster than |matchadd()|
-		because it does not handle regular expressions and it sets
-		buffer line boundaries to redraw screen. It is supposed to be
-		used when fast match additions and deletions are required, for
-		example to highlight matching parentheses.
+		because it does not require to handle regular expressions and
+		sets buffer line boundaries to redraw screen. It is supposed
+		to be used when fast match additions and deletions are
+		required, for example to highlight matching parentheses.
 							*E5030* *E5031*
 		{pos} is a list of positions.  Each position can be one of
 		these:
@@ -5048,14 +4944,17 @@ mkdir({name} [, {flags} [, {prot}]])                              *mkdir()* *E73
 		When {flags} is present it must be a string.  An empty string
 		has no effect.
 
-		{flags} can contain these character flags:
-		 "p"	intermediate directories will be created as necessary
-		 "D"	{name} will be deleted at the end of the current
-			function, but not recursively |:defer|
-		 "R"	{name} will be deleted recursively at the end of the
-			current function |:defer|
+		If {flags} contains "p" then intermediate directories are
+		created as necessary.
 
-		Note that when {name} has more than one part and "p" is used
+		If {flags} contains "D" then {name} is deleted at the end of
+		the current function, as with: >vim
+			defer delete({name}, 'd')
+<
+		If {flags} contains "R" then {name} is deleted recursively at
+		the end of the current function, as with: >vim
+			defer delete({name}, 'rf')
+<		Note that when {name} has more than one part and "p" is used
 		some directories may already exist.  Only the first one that
 		is created and what it contains is scheduled to be deleted.
 		E.g. when using: >vim
@@ -5206,7 +5105,12 @@ msgpackparse({data})                                            *msgpackparse()*
 			   C parser does not support such values.
 		float	|Float|. This value cannot possibly appear in
 			|msgpackparse()| output.
-		string	|String|, or |Blob| if binary string contains zero
+		string	|readfile()|-style list of strings. This value will
+			appear in |msgpackparse()| output if string contains
+			zero byte or if string is a mapping key and mapping is
+			being represented as special dictionary for other
+			reasons.
+		binary	|String|, or |Blob| if binary string contains zero
 			byte. This value cannot appear in |msgpackparse()|
 			output since blobs were introduced.
 		array	|List|. This value cannot appear in |msgpackparse()|
@@ -6201,9 +6105,6 @@ search({pattern} [, {flags} [, {stopline} [, {timeout} [, {skip}]]]]) *search()*
 		The value must not be negative.  A zero value is like not
 		giving the argument.
 
-		Note: the timeout is only considered when searching, not
-		while evaluating the {skip} expression.
-
 		If the {skip} expression is given it is evaluated with the
 		cursor positioned on the start of a match.  If it evaluates to
 		non-zero this match is skipped.  This can be used, for
@@ -7120,7 +7021,6 @@ sign_define({list})
 		   icon		full path to the bitmap file for the sign.
 		   linehl	highlight group used for the whole line the
 				sign is placed in.
-		   priority	default priority value of the sign
 		   numhl	highlight group used for the line number where
 				the sign is placed.
 		   text		text that is displayed when there is no icon
@@ -7168,7 +7068,6 @@ sign_getdefined([{name}])                                    *sign_getdefined()*
 		   linehl	highlight group used for the whole line the
 				sign is placed in; not present if not set.
 		   name		name of the sign
-		   priority	default priority value of the sign
 		   numhl	highlight group used for the line number where
 				the sign is placed; not present if not set.
 		   text		text that is displayed when there is no icon
@@ -7341,8 +7240,7 @@ sign_placelist({list})                                        *sign_placelist()*
 		    priority	Priority of the sign. When multiple signs are
 				placed on a line, the sign with the highest
 				priority is used. If not specified, the
-				default value of 10 is used, unless specified
-				otherwise by the sign definition. See
+				default value of 10 is used. See
 				|sign-priority| for more information.
 
 		If {id} refers to an existing sign, then the existing sign is
@@ -7673,8 +7571,8 @@ spellsuggest({word} [, {max} [, {capital}]])                    *spellsuggest()*
 
 split({string} [, {pattern} [, {keepempty}]])                          *split()*
 		Make a |List| out of {string}.  When {pattern} is omitted or
-		empty each white space separated sequence of characters
-		becomes an item.
+		empty each white-separated sequence of characters becomes an
+		item.
 		Otherwise the string is split where {pattern} matches,
 		removing the matched characters. 'ignorecase' is not used
 		here, add \c to ignore case. |/\c|
@@ -8533,7 +8431,7 @@ test_garbagecollect_now()                            *test_garbagecollect_now()*
 		Like |garbagecollect()|, but executed right away.  This must
 		only be called directly to avoid any structure to exist
 		internally, and |v:testing| must have been set before calling
-		any function.   *E1142*
+		any function.
 
 timer_info([{id}])                                                *timer_info()*
 		Return a list with information about timers.
@@ -8805,9 +8703,7 @@ virtcol({expr} [, {list} [, {winid}]])                               *virtcol()*
 		set to 8, it returns 8. |conceal| is ignored.
 		For the byte position use |col()|.
 
-		For the use of {expr} see |getpos()| and |col()|.
-		When {expr} is "$", it means the end of the cursor line, so
-		the result is the number of cells in the cursor line plus one.
+		For the use of {expr} see |col()|.
 
 		When 'virtualedit' is used {expr} can be [lnum, col, off],
 		where "off" is the offset in screen columns from the start of
@@ -8816,6 +8712,18 @@ virtcol({expr} [, {list} [, {winid}]])                               *virtcol()*
 		Virtual editing is active in the current mode, a position
 		beyond the end of the line can be returned.  Also see
 		|'virtualedit'|
+
+		The accepted positions are:
+		    .	    the cursor position
+		    $	    the end of the cursor line (the result is the
+			    number of displayed characters in the cursor line
+			    plus one)
+		    'x	    position of mark x (if the mark is not set, 0 is
+			    returned)
+		    v       In Visual mode: the start of the Visual area (the
+			    cursor is the end).  When not in Visual mode
+			    returns the cursor position.  Differs from |'<| in
+			    that it's updated right away.
 
 		If {list} is present and non-zero then virtcol() returns a
 		List with the first and last screen position occupied by the
@@ -8835,9 +8743,7 @@ virtcol({expr} [, {list} [, {winid}]])                               *virtcol()*
 			" With text "	  there", with 't at 'h':
 
 			echo virtcol("'t")	" returns 6
-<
-		The first column is 1.  0 or [0, 0] is returned for an error.
-
+<		The first column is 1.  0 or [0, 0] is returned for an error.
 		A more advanced example that echoes the maximum length of
 		all lines: >vim
 		    echo max(map(range(1, line('$')), "virtcol([v:val, '$'])"))

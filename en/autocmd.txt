@@ -466,16 +466,6 @@ CompleteDone			After Insert mode completion is done.  Either
 				CompleteDonePre if you need it.
 				|v:completed_item| gives the completed item.
 
-				Sets these |v:event| keys:
-				    reason	Reason for completion being
-						done. Can be one of:
-						- "accept": completion was
-						  accepted using |complete_CTRL-Y|.
-						- "cancel": completion was cancelled
-						  using |complete_CTRL-E|, pressing
-						  a non-keyword character, or
-						  triggering a new completion.
-
 							*CursorHold*
 CursorHold			When the user doesn't press a key for the time
 				specified with 'updatetime'.  Not triggered
@@ -522,11 +512,6 @@ CursorMoved			After the cursor was moved in Normal or Visual
 				Careful: This is triggered very often, don't
 				do anything that the user does not expect or
 				that is slow.
-							*CursorMovedC*
-CursorMovedC			After the cursor was moved in the command
-				line.  Be careful not to mess up the command
-				line, it may cause Vim to lock up.
-				<afile> expands to the |cmdline-char|.
 							*CursorMovedI*
 CursorMovedI			After the cursor was moved in Insert mode.
 				Not triggered when the popup menu is visible.
