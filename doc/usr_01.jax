@@ -56,26 +56,26 @@ Vim のマニュアルは2部構成になっています。
 ==============================================================================
 *01.2*	Vim の準備					   *setup-vimrc_example*
 
-To create an empty vimrc: >
+空のvimrcを作成するには: >
 
 	:call mkdir(stdpath('config'),'p')
 	:exe 'edit' stdpath('config').'/init.vim'
 	:write
 
-For more info see |vimrc|.
+詳細は、 |vimrc| を参照してください。
 
 ==============================================================================
-*01.3*	Using the Vim tutor			         *tutor* *vimtutor*
+*01.3*	チュートリアル			         *tutor* *vimtutor*
 
-Instead of reading the text (boring!) you can use :Tutor to learn your first
-Vim commands.  This is a 30-minute tutorial that teaches the most basic Vim
-functionality hands-on.
+テキストを読む代わりに(退屈!) :Tutor を使って、初めてのVimコマンドを学んでみ
+ましょう。 これは、Vimの最も基本的な機能を実際に操作しながら学ぶ30分間のチュー
+トリアルです。
 
-To start the tutorial, execute >
+チュートリアルを開始するには >
 
         :Tutor
 <
-from within nvim. The tutorial will lead you from that point. Have fun!
+をnvim内から実行できます。チュートリアルが先導してくれます。楽しんでください!
 
 ==============================================================================
 *01.4*	著作権 (Copyright)				*manual-copyright*
