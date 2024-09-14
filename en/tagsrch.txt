@@ -1,4 +1,4 @@
-*tagsrch.txt*   For Vim version 9.1.  Last change: 2024 Aug 01
+*tagsrch.txt*   Nvim
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -8,13 +8,7 @@ Tags and special searches				*tags-and-searches*
 
 See section |29.1| of the user manual for an introduction.
 
-1. Jump to a tag		|tag-commands|
-2. Tag stack			|tag-stack|
-3. Tag match list		|tag-matchlist|
-4. Tags details			|tag-details|
-5. Tags file format		|tags-file-format|
-6. Include file searches	|include-search|
-7. Using 'tagfunc'		|tag-function|
+                                      Type |gO| to see the table of contents.
 
 ==============================================================================
 1. Jump to a tag					*tag-commands*
@@ -65,9 +59,9 @@ CTRL-]			Jump to the definition of the keyword under the
 CTRL-] is the default telnet escape key.  When you type CTRL-] to jump to a
 tag, you will get the telnet prompt instead.  Most versions of telnet allow
 changing or disabling the default escape key.  See the telnet man page.  You
-can 'telnet -E {Hostname}' to disable the escape character, or 'telnet -e
-{EscapeCharacter} {Hostname}' to specify another escape character.  If
-possible, try to use "ssh" instead of "telnet" to avoid this problem.
+can `telnet -E {Hostname}` to disable the escape character, or
+`telnet -e {EscapeCharacter} {Hostname}` to specify another escape character.
+If possible, try to use "ssh" instead of "telnet" to avoid this problem.
 
 							*tag-priority*
 When there are multiple matches for a tag, this priority is used:
@@ -332,7 +326,6 @@ message is given.
 							*tag-preview*
 The tag match list can also be used in the preview window.  The commands are
 the same as above, with a "p" prepended.
-{not available when compiled without the |+quickfix| feature}
 
 							*:pts* *:ptselect*
 :pts[elect][!] [name]	Does ":tselect[!] [name]" and shows the new tag in a
@@ -374,11 +367,11 @@ be a bug.  If you really want the old Vi behavior, set the 't' flag in
 'cpoptions'.
 
 							*tag-binary-search*
-Vim uses binary searching in the tags file to find the desired tag quickly
-(when enabled at compile time |+tag_binary|).  But this only works if the
-tags file was sorted on ASCII byte value.  Therefore, if no match was found,
-another try is done with a linear search.  If you only want the linear search,
-reset the 'tagbsearch' option.  Or better: Sort the tags file!
+Vim uses binary searching in the tags file to find the desired tag quickly.
+But this only works if the tags file was sorted on ASCII byte value.
+Therefore, if no match was found, another try is done with a linear search.
+If you only want the linear search, reset the 'tagbsearch' option.  Or better:
+Sort the tags file!
 
 Note that the binary searching is disabled when not looking for a tag with a
 specific name.  This happens when ignoring case and when a regular expression
@@ -458,15 +451,6 @@ In Vi the ":tag" command sets the last search pattern when the tag is searched
 for.  In Vim this is not done, the previous search pattern is still remembered,
 unless the 't' flag is present in 'cpoptions'.
 
-					*emacs-tags* *emacs_tags* *E430*
-Emacs style tag files are only supported if Vim was compiled with the
-|+emacs_tags| feature enabled.  Sorry, there is no explanation about Emacs tag
-files here, it is only supported for backwards compatibility :-).
-
-Lines in Emacs tags files can be very long.  Vim only deals with lines of up
-to about 510 bytes.  To see whether lines are ignored set 'verbose' to 5 or
-higher. Non-Emacs tags file lines can be any length.
-
 							*tags-option*
 The 'tags' option is a list of file names.  Each of these files is searched
 for the tag.  This can be used to use a different tags file than the default
@@ -537,20 +521,13 @@ ctags			As found on most Unix systems.  Only supports C.  Only
 universal ctags		A maintained version of ctags based on exuberant
 			ctags. See https://ctags.io.
 							*Exuberant_ctags*
-exuberant ctags		This is a very good one.  It works for C, C++, Java,
-			Fortran, Eiffel and others.  It can generate tags for
-			many items.  See http://ctags.sourceforge.net.
-			No new version since 2009.
-etags			Connected to Emacs.  Supports many languages.
+exuberant ctags		Works for C, C++, Java, Fortran, Eiffel and others.
+			See https://ctags.sourceforge.net. No new version
+			since 2009.
 JTags			For Java, in Java.  It can be found at
-			http://www.fleiner.com/jtags/.
+			https://www.fleiner.com/jtags/.
 ptags.py		For Python, in Python.  Found in your Python source
 			directory at Tools/scripts/ptags.py.
-ptags			For Perl, in Perl.  It can be found at (link seems
-			dead):
-			http://www.eleves.ens.fr:8080/home/nthiery/Tags/.
-gnatxref		For Ada.  See http://www.gnuada.org/.  gnatxref is
-			part of the gnat package.
 
 
 The lines in the tags file must have one of these two formats:
@@ -591,8 +568,8 @@ ctags).
 		with Vi, it ignores the following fields. Example: >
 			APP	file	/^static int APP;$/;"	v
 <		When {tagaddress} is not a line number or search pattern, then
-		{term} must be |;".  Here the bar ends the command (excluding
-		the bar) and ;" is used to have Vi ignore the rest of the
+		{term} must be `|;"`.  Here the bar ends the command (excluding
+		the bar) and `;"` is used to have Vi ignore the rest of the
 		line.  Example: >
 			APP	file.c	call cursor(3, 4)|;"	v
 
@@ -693,9 +670,6 @@ included files (recursively).  This can be used to find the definition of a
 variable, function or macro.  If you only want to search in the current
 buffer, use the commands listed at |pattern-searches|.
 
-These commands are not available when the |+find_in_path| feature was disabled
-at compile time.
-
 When a line is encountered that includes another file, that file is searched
 before continuing in the current buffer.  Files included by included files are
 also searched.  When an include file could not be found it is silently
@@ -730,7 +704,7 @@ do not have an absolute path.
 The 'comments' option is used for the commands that display a single line or
 jump to a line.  It defines patterns that may start a comment.  Those lines
 are ignored for the search, unless [!] is used.  One exception: When the line
-matches the pattern "^# *define" it is not considered to be a comment.
+matches the pattern `"^# *define"` it is not considered to be a comment.
 
 If you want to list matches, and then select one to jump to, you could use a
 mapping to do that for you.  Here is an example: >
@@ -808,8 +782,16 @@ CTRL-W i		Open a new window, with the cursor on the first line
 			beginning of the file.  If a count is given, the
 			count'th matching line is displayed.
 
+							*[d-default*
+			Jumps to the previous diagnostic in the current buffer
+			by default. |vim.diagnostic.jump()| |default-mappings|
+
 							*]d*
 ]d			like "[d", but start at the current cursor position.
+
+							*]d-default*
+			Jumps to the next diagnostic in the current buffer by
+			default. |vim.diagnostic.jump()| |default-mappings|
 
 							*:ds* *:dsearch*
 :[range]ds[earch][!] [count] [/]string[/]
@@ -823,8 +805,16 @@ CTRL-W i		Open a new window, with the cursor on the first line
 			displayed for the found lines.  The search starts
 			from the beginning of the file.
 
+							*[D-default*
+			Jumps to the first diagnostic in the current buffer by
+			default. |vim.diagnostic.jump()| |default-mappings|
+
 							*]D*
 ]D			like "[D", but start at the current cursor position.
+
+							*]D-default*
+			Jumps to the last diagnostic in the current buffer by
+			default. |vim.diagnostic.jump()| |default-mappings|
 
 							*:dli* *:dlist*
 :[range]dli[st][!] [/]string[/]
@@ -857,23 +847,27 @@ CTRL-W d		Open a new window, with the cursor on the first
 			beginning of the file.  If a count is given, the
 			count'th matching line is jumped to.
 
+						*CTRL-W_d-default*
+			Mapped to |vim.diagnostic.open_float()| by default.
+			|default-mappings|
+
 							*:dsp* *:dsplit*
 :[range]dsp[lit][!] [count] [/]string[/]
 			Like "CTRL-W d", but search in [range] lines
 			(default: whole file).
 			See |:search-args| for [/] and [!].
 
-					*:che* *:chec* *:check* *:checkpath*
-:che[ckpath]		List all the included files that could not be found.
+							*:checkp* *:checkpath*
+:checkp[ath]		List all the included files that could not be found.
 
-:che[ckpath]!		List all the included files.
+:checkp[ath]!		List all the included files.
 
 								*:search-args*
 Common arguments for the commands above:
 [!]	When included, find matches in lines that are recognized as comments.
 	When excluded, a match is ignored when the line is recognized as a
 	comment (according to 'comments'), or the match is in a C comment
-	(after "//" or inside /* */).  Note that a match may be missed if a
+	(after "//" or inside `/* */`).  Note that a match may be missed if a
 	line is recognized as a comment, but the comment ends halfway the line.
 	And if the line is a comment, but it is not recognized (according to
 	'comments') a match may be found in it anyway.  Example: >
@@ -883,9 +877,9 @@ Common arguments for the commands above:
 	a comment (even though syntax highlighting does recognize it).
 	Note: Since a macro definition mostly doesn't look like a comment, the
 	[!] makes no difference for ":dlist", ":dsearch" and ":djump".
-[/]	A pattern can be surrounded by '/'.  Without '/' only whole words are
-	matched, using the pattern "\<pattern\>".  Only after the second '/' a
-	next command can be appended with '|'.  Example: >
+[/]	A pattern can be surrounded by "/".  Without "/" only whole words are
+	matched, using the pattern "\<pattern\>".  Only after the second "/" a
+	next command can be appended with "|".  Example: >
 	:isearch /string/ | echo "the last one"
 <	For a ":djump", ":dsplit", ":dlist" and ":dsearch" command the pattern
 	is used as a literal string, not as a search pattern.
@@ -906,8 +900,7 @@ The function used for generating the taglist is specified by setting the
 		    user_data	  Custom data String, if stored in the tag
 				  stack previously by tagfunc.
 
-Note that in a legacy function "a:" needs to be prepended to the argument name
-when using it.
+Note that "a:" needs to be prepended to the argument name when using it.
 
 Currently up to three flags may be passed to the tag function:
   'c'		The function was invoked by a normal command being processed

@@ -1,4 +1,4 @@
-*quickfix.txt*  For Vim version 9.1.  Last change: 2024 Aug 20
+*quickfix.txt*  Nvim
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -6,19 +6,7 @@
 
 This subject is introduced in section |30.1| of the user manual.
 
-1. Using QuickFix commands		|quickfix|
-2. The error window			|quickfix-window|
-3. Using more than one list of errors	|quickfix-error-lists|
-4. Using :make				|:make_makeprg|
-5. Using :grep				|grep|
-6. Selecting a compiler			|compiler-select|
-7. The error format			|error-file-format|
-8. The directory stack			|quickfix-directory-stack|
-9. Specific error file formats		|errorformats|
-10. Customizing the quickfix window	|quickfix-window-function|
-
-The quickfix commands are not available when the |+quickfix| feature was
-disabled at compile time.
+                                      Type |gO| to see the table of contents.
 
 =============================================================================
 1. Using QuickFix commands			*quickfix* *Quickfix* *E42*
@@ -240,9 +228,9 @@ processing a quickfix or location list command, it will be aborted.
 			execute the command, etc.
 			{N} can also be zero, in which case Vim exits
 			normally.
-			WARNING: All changes in files are lost!  Also when the
-			[!] is not used.  It works like ":qall!" |:qall|,
-			except that Vim returns a non-zero exit code.
+			WARNING: All changes in files are lost.  It works like
+			":qall!" |:qall|, except that Nvim exits non-zero or
+			[count].
 
 							*:cf* *:cfi* *:cfile*
 :cf[ile][!] [errorfile]	Read the error file and jump to the first error.
@@ -885,11 +873,11 @@ lists.  They set one of the existing error lists as the current one.
 
 						*:chistory* *:chi*
 :[count]chi[story]	Show the list of error lists.  The current list is
-			marked with ">".  The output looks like:
-			  error list 1 of 3; 43 errors   :make  ~
-			> error list 2 of 3; 0 errors    :helpgrep tag  ~
-			  error list 3 of 3; 15 errors   :grep ex_help *.c ~
-
+			marked with ">".  The output looks like: >
+			  error list 1 of 3; 43 errors   :make
+			> error list 2 of 3; 0 errors    :helpgrep tag
+			  error list 3 of 3; 15 errors   :grep ex_help *.c
+<
 			When [count] is given, then the count'th quickfix
 			list is made the current list. Example: >
 				" Make the 4th quickfix list current
@@ -974,14 +962,14 @@ or simpler >
 "$*" can be given multiple times, for example: >
    :set makeprg=gcc\ -o\ $*\ $*
 
-The 'shellpipe' option defaults to ">" for the Amiga and ">%s 2>&1" for Win32.
+The 'shellpipe' option defaults to "2>&1| tee" for Win32.
 This means that the output of the compiler is saved in a file and not shown on
 the screen directly.  For Unix "| tee" is used.  The compiler output is shown
 on the screen and saved in a file the same time.  Depending on the shell used
 "|& tee" or "2>&1| tee" is the default, so stderr output will be included.
 
 If 'shellpipe' is empty, the {errorfile} part will be omitted.  This is useful
-for compilers that write to an errorfile themselves (e.g., Manx's Amiga C).
+for compilers that write to an errorfile themselves.
 
 
 Using QuickFixCmdPost to fix the encoding ~
@@ -1252,8 +1240,6 @@ need to write down a "todo" list.
 				If you use ":compiler foo" in "file.foo" and
 				then ":compiler! bar" in another buffer, Vim
 				will keep on using "foo" in "file.foo".
-				{not available when compiled without the
-				|+eval| feature}
 
 
 The Vim plugins in the "compiler" directory will set options to use the
@@ -1266,8 +1252,8 @@ not "b:current_compiler".  What the command actually does is the following:
 - Delete the "current_compiler" and "b:current_compiler" variables.
 - Define the "CompilerSet" user command.  With "!" it does ":set", without "!"
   it does ":setlocal".
-- Execute ":runtime! compiler/{name}.vim".  The plugins are expected to set
-  options with "CompilerSet" and set the "current_compiler" variable to the
+- Execute ":runtime! compiler/{name}.{vim,lua}".  The plugins are expected to
+  set options with "CompilerSet" and set the "current_compiler" variable to the
   name of the compiler.
 - Delete the "CompilerSet" user command.
 - Set "b:current_compiler" to the value of "current_compiler".
@@ -1276,6 +1262,7 @@ not "b:current_compiler".  What the command actually does is the following:
 
 For writing a compiler plugin, see |write-compiler-plugin|.
 
+Use the |compiler-make| plugin to undo the effect of a compiler plugin.
 
 DOTNET							*compiler-dotnet*
 
@@ -1291,7 +1278,6 @@ Example: limit output to only display errors, and suppress the project name: >
 	let dotnet_show_project_file = v:false
 	compiler dotnet
 <
-
 GCC					*quickfix-gcc*	*compiler-gcc*
 
 There's one variable you can set for the GCC compiler:
@@ -1302,38 +1288,30 @@ g:compiler_gcc_ignore_unmatched_lines
 				commands run from make are generating false
 				positives.
 
-
 JAVAC							*compiler-javac*
 
 Commonly used compiler options can be added to 'makeprg' by setting the
 g:javac_makeprg_params variable.  For example: >
-
 	let g:javac_makeprg_params = "-Xlint:all -encoding utf-8"
 <
+GNU MAKE						*compiler-make*
 
-MANX AZTEC C				*quickfix-manx* *compiler-manx*
+Since the default make program is "make", the compiler plugin for make,
+:compiler make, will reset the 'makeprg' and 'errorformat' option to
+the default values and unlet any variables that may have been set by a
+previous compiler plugin.
 
-To use Vim with Manx's Aztec C compiler on the Amiga you should do the
-following:
-- Set the CCEDIT environment variable with the command: >
-	mset "CCEDIT=vim -q"
-- Compile with the -qf option.  If the compiler finds any errors, Vim is
-  started and the cursor is positioned on the first error.  The error message
-  will be displayed on the last line.  You can go to other errors with the
-  commands mentioned above.  You can fix the errors and write the file(s).
-- If you exit Vim normally the compiler will re-compile the same file.  If you
-  exit with the :cq command, the compiler will terminate.  Do this if you
-  cannot fix the error, or if another file needs to be compiled first.
+GROFF					*quickfix-groff* *compiler-groff*
 
-There are some restrictions to the Quickfix mode on the Amiga.  The
-compiler only writes the first 25 errors to the errorfile (Manx's
-documentation does not say how to get more).  If you want to find the others,
-you will have to fix a few errors and exit the editor.  After recompiling,
-up to 25 remaining errors will be found.
+The GROFF compiler plugin uses the mom macro set (documented in the groff_mom
+manpage) as input and expects that the output file type extension is passed to
+make, say :make html or :make pdf.
 
-If Vim was started from the compiler, the :sh and some :!  commands will not
-work, because Vim is then running in the same process as the compiler and
-stdin (standard input) will not be interactive.
+Additional arguments can be passed to groff by setting them in
+`b:groff_compiler_args` or `g:groff_compiler_args`. The `language` argument
+passed to groff is set using 'spelllang'; it can be overridden by setting
+`b:groff_compiler_lang`. The default enconding is `UTF-8` and can be changed
+by setting `b:groff_compiler_encoding` or `g:groff_compiler_encoding`.
 
 PANDOC					*quickfix-pandoc* *compiler-pandoc*
 
@@ -1347,8 +1325,7 @@ Additional arguments can be passed to pandoc:
 
 The `--from` argument is an educated guess using the buffer file type;
 it can be overridden by setting `b:pandoc_compiler_from`.
-Likewise the `--metadata lang` argument is set using `&spelllang`;
-it can be overridden by setting `b:pandoc_compiler_lang`.
+The `--metadata lang` argument is set using 'spelllang';
 If `--from=markdown` is assumed and no title set in a title header or
 YAML block, then the filename (without extension) is used as the title.
 
@@ -1369,7 +1346,7 @@ PYUNIT COMPILER						*compiler-pyunit*
 This is not actually a compiler, but a unit testing framework for the
 Python language.  It is included into standard Python distribution
 starting from version 2.0.  For older versions, you can get it from
-http://pyunit.sourceforge.net.
+https://pyunit.sourceforge.net.
 
 When you run your tests with the help of the framework, possible errors
 are parsed by Vim and presented for you in quick-fix mode.
@@ -1380,16 +1357,14 @@ Useful values for the 'makeprg' options therefore are:
  setlocal makeprg=./alltests.py " Run a testsuite
  setlocal makeprg=python\ %:S   " Run a single testcase
 
-Also see http://vim.sourceforge.net/tip_view.php?tip_id=280.
-
 
 TEX COMPILER						*compiler-tex*
 
 Included in the distribution compiler for TeX ($VIMRUNTIME/compiler/tex.vim)
 uses make command if possible.  If the compiler finds a file named "Makefile"
 or "makefile" in the current directory, it supposes that you want to process
-your *TeX files with make, and the makefile does the right work.  In this case
-compiler sets 'errorformat' for *TeX output and leaves 'makeprg' untouched.  If
+your `*TeX` files with make, and the makefile does the right work.  In this case
+compiler sets 'errorformat' for `*TeX` output and leaves 'makeprg' untouched.  If
 neither "Makefile" nor "makefile" is found, the compiler will not use make.
 You can force the compiler to ignore makefiles by defining
 b:tex_ignore_makefile or g:tex_ignore_makefile variable (they are checked for
@@ -1499,7 +1474,7 @@ normally happens by matching following characters and items.  When nothing is
 following the rest of the line is matched.  If "%f" is followed by a '%' or a
 backslash, it will look for a sequence of 'isfname' characters.
 
-On MS-Windows a leading "C:" will be included in "%f", even when using "%f:".
+On Windows a leading "C:" will be included in "%f", even when using "%f:".
 This means that a file name which is a single alphabetical letter will not be
 detected.
 
@@ -1590,7 +1565,7 @@ error message (line numbers are not part of the actual output):
      4	Traceback (most recent call last):
      5	  File "unittests/dbfacadeTest.py", line 89, in testFoo
      6	    self.assertEquals(34, dtid)
-     7	  File "/usr/lib/python2.2/unittest.py", line 286, in
+     7	  File "/usr/lib/python3.8/unittest.py", line 286, in
      8	 failUnlessEqual
      9	    raise self.failureException, \
     10	AssertionError: 34 != 33
@@ -1671,8 +1646,9 @@ A call of |:clist| writes them accordingly with their correct filenames:
 
 Unlike the other prefixes that all match against whole lines, %P, %Q and %O
 can be used to match several patterns in the same line.  Thus it is possible
-to parse even nested files like in the following line:
+to parse even nested files like in the following line: >
   {"file1" {"file2" error1} error2 {"file3" error3 {"file4" error4 error5}}}
+<
 The %O then parses over strings that do not contain any push/pop file name
 information.  See |errorformat-LaTeX| for an extended example.
 
@@ -1702,7 +1678,7 @@ be escaped), meta symbols have to be written with leading '%':
 	%\		The single '\' character.  Note that this has to be
 			escaped ("%\\") in ":set errorformat=" definitions.
 	%.		The single '.' character.
-	%#		The single '*'(!) character.
+	%#		The single "*"(!) character.
 	%^		The single '^' character.  Note that this is not
 			useful, the pattern already matches start of line.
 	%$		The single '$' character.  Note that this is not
@@ -1743,9 +1719,7 @@ If the error format does not contain a file name Vim cannot switch to the
 correct file.  You will have to do this by hand.
 
 
-Examples
-
-The format of the file from the Amiga Aztec compiler is:
+For example, the format of the output from the Amiga Aztec compiler is:
 
 	filename>linenumber:columnnumber:errortype:errornumber:errormessage
 
@@ -1884,7 +1858,7 @@ Jikes(TM), a source-to-bytecode Java compiler published by IBM Research,
 produces simple multi-line error messages.
 
 An 'errorformat' string matching the produced messages is shown below.
-The following lines can be placed in the user's |vimrc| to overwrite Vim's
+The following lines can be placed in the user's |init.vim| to overwrite Vim's
 recognized default formats, or see |:set+=| how to install this format
 additionally to the default. >
 
@@ -1924,7 +1898,7 @@ In English, that sed script:
   it as a "continuation of a multi-line message."
 
 						*errorformat-ant*
-For ant (http://jakarta.apache.org/) the above errorformat has to be modified
+For ant (https://jakarta.apache.org/) the above errorformat has to be modified
 to honour the leading [javac] in front of each javac output line: >
   :set efm=%A\ %#[javac]\ %f:%l:\ %m,%-Z\ %#[javac]\ %p^,%-C%.%#
 
@@ -2022,26 +1996,21 @@ You can customize the given setting to suit your own purposes, for example,
 all the annoying "Overfull ..." warnings could be excluded from being
 recognized as an error.
 Alternatively to filtering the LaTeX compiler output, it is also possible
-to directly read the *.log file that is produced by the [La]TeX compiler.
+to directly read the `*.log` file that is produced by the [La]TeX compiler.
 This contains even more useful information about possible error causes.
 However, to properly parse such a complex file, an external filter should
 be used.  See the description further above how to make such a filter known
 by Vim.
 
-						*errorformat-Perl*
-In $VIMRUNTIME/tools you can find the efm_perl.pl script, which filters Perl
-error messages into a format that quickfix mode will understand.  See the
-start of the file about how to use it.  (This script is deprecated, see
-|compiler-perl|.)
 
 =============================================================================
 10. Customizing the quickfix window		*quickfix-window-function*
 
 The default format for the lines displayed in the quickfix window and location
 list window is:
-
+>
     <filename>|<lnum> col <col>|<text>
-
+<
 The values displayed in each line correspond to the "bufnr", "lnum", "col" and
 "text" fields returned by the |getqflist()| function.
 

@@ -1,4 +1,4 @@
-*userfunc.txt*	For Vim version 9.1.  Last change: 2023 May 23
+*userfunc.txt*	Nvim
 
 
 		  VIM REFERENCE MANUAL	  by Bram Moolenaar
@@ -8,10 +8,7 @@ Defining and using functions.
 
 This is introduced in section |41.7| of the user manual.
 
-1. Defining a function			|define-function|
-2. Calling a function			|:call|
-3. Cleaning up in a function		|:defer|
-4. Automatically loading functions	|autoload-functions|
+				      Type |gO| to see the table of contents.
 
 ==============================================================================
 
@@ -27,29 +24,25 @@ make them script-local.  If you do use a global function then avoid obvious,
 short names.  A good habit is to start the function name with the name of the
 script, e.g., "HTMLcolor()".
 
-In legacy script it is also possible to use curly braces, see
-|curly-braces-names|.
+It is also possible to use curly braces, see |curly-braces-names|.
 
 The |autoload| facility is useful to define a function only when it's called.
 
 							*local-function*
-A function local to a legacy script must start with "s:".  A local script
-function can only be called from within the script and from functions, user
-commands and autocommands defined in the script.  It is also possible to call
-the function from a mapping defined in the script, but then |<SID>| must be
-used instead of "s:" when the mapping is expanded outside of the script.
+A function local to a script must start with "s:".  A local script function
+can only be called from within the script and from functions, user commands
+and autocommands defined in the script.  It is also possible to call the
+function from a mapping defined in the script, but then |<SID>| must be used
+instead of "s:" when the mapping is expanded outside of the script.
 There are only script-local functions, no buffer-local or window-local
 functions.
 
-In |Vim9| script functions are local to the script by default, prefix "g:" to
-define a global function.
-
-				*:fu* *:function* *E128* *E129* *E123* *E454*
+					*:fu* *:function* *E128* *E129* *E123*
 :fu[nction]		List all functions and their arguments.
 
-:fu[nction] {name}	List function {name}.
-			{name} can also be a |Dictionary| entry that is a
-			|Funcref|: >
+:fu[nction][!] {name}	List function {name}, annotated with line numbers
+			unless "!" is given.
+			{name} may be a |Dictionary| |Funcref| entry: >
 				:function dict.init
 <			Note that {name} is not an expression, you cannot use
 			a variable that is a function reference.  You can use
@@ -78,7 +71,7 @@ See |:verbose-cmd| for more information.
 			Define a new function by the name {name}.  The body of
 			the function follows in the next lines, until the
 			matching |:endfunction|.
-								*E1267*
+
 			The name must be made of alphanumeric characters and
 			'_', and must start with a capital or "s:" (see
 			above).  Note that using "b:" or "g:" is not allowed.
@@ -86,8 +79,7 @@ See |:verbose-cmd| for more information.
 			name has a colon in the name, e.g. for "foo:bar()".
 			Before that patch no error was given).
 
-			{name} can also be a |Dictionary| entry that is a
-			|Funcref|: >
+			{name} may be a |Dictionary| |Funcref| entry: >
 				:function dict.init(arg)
 <			"dict" must be an existing dictionary.  The entry
 			"init" is added if it didn't exist yet.  Otherwise [!]
@@ -107,8 +99,6 @@ See |:verbose-cmd| for more information.
 			NOTE: Use ! wisely.  If used without care it can cause
 			an existing function to be replaced unexpectedly,
 			which is hard to debug.
-			NOTE: In Vim9 script script-local functions cannot be
-			deleted or redefined.
 
 			For the {arguments} see |function-argument|.
 
@@ -158,7 +148,7 @@ See |:verbose-cmd| for more information.
 			implies that the effect of |:nohlsearch| is undone
 			when the function returns.
 
-			*:endf* *:endfunction* *E126* *E193* *W22* *E1151*
+				*:endf* *:endfunction* *E126* *E193* *W22*
 :endf[unction] [argument]
 			The end of a function definition.  Best is to put it
 			on a line by its own, without [argument].
@@ -177,7 +167,7 @@ See |:verbose-cmd| for more information.
 			command, use line breaks instead of |:bar|: >
 				:exe "func Foo()\necho 'foo'\nendfunc"
 <
-				*:delf* *:delfunction* *E131* *E933* *E1084*
+				*:delf* *:delfunction* *E131* *E933*
 :delf[unction][!] {name}
 			Delete function {name}.
 			{name} can also be a |Dictionary| entry that is a
@@ -194,12 +184,9 @@ See |:verbose-cmd| for more information.
 			If "[expr]" is not given, the number 0 is returned.
 			When a function ends without an explicit ":return",
 			the number 0 is returned.
-
-			In a :def function *E1095* is given if unreachable
-			code follows after the `:return`.
-			In legacy script there is no check for unreachable
-			lines, thus there is no warning if commands follow
-			`:return`.  Also, there is no check if the following
+			Note that there is no check for unreachable lines,
+			thus there is no warning if commands follow ":return".
+			Also, there is no check if the following
 			line contains a valid command.  Forgetting the line
 			continuation backslash may go unnoticed: >
 				return 'some text'
@@ -218,8 +205,7 @@ See |:verbose-cmd| for more information.
 
 						*function-argument* *a:var*
 An argument can be defined by giving its name.  In the function this can then
-be used as "a:name" ("a:" for argument) (in a `:def` function "a:" is not
-used).
+be used as "a:name" ("a:" for argument).
 					*a:0* *a:1* *a:000* *E740* *...*
 Up to 20 arguments can be given, separated by commas.  After the named
 arguments an argument "..." can be specified, which means that more arguments
@@ -227,7 +213,7 @@ may optionally be following.  In the function the extra arguments can be used
 as "a:1", "a:2", etc.  "a:0" is set to the number of extra arguments (which
 can be 0).  "a:000" is set to a |List| that contains these arguments.  Note
 that "a:1" is the same as "a:000[0]".
-							*E742* *E1090*
+								*E742*
 The a: scope and the variables in it cannot be changed, they are fixed.
 However, if a composite type is used, such as |List| or |Dictionary| , you can
 change their contents.  Thus you can pass a |List| to a function and have the
@@ -243,7 +229,7 @@ It is allowed to define another function inside a function body.
 You can provide default values for positional named arguments.  This makes
 them optional for function calls.  When a positional argument is not
 specified at a call, the default expression is used to initialize it.
-This only works for functions declared with `:function` or `:def`, not for
+This only works for functions declared with `:function`, not for
 lambda expressions |expr-lambda|.
 
 Example: >
@@ -258,16 +244,7 @@ call, not when the function is defined.  Thus it is possible to use an
 expression which is invalid the moment the function is defined.  The
 expressions are also only evaluated when arguments are not specified during a
 call.
-						*none-function_argument*
-You can pass |v:none| to use the default expression.  Note that this means you
-cannot pass v:none as an ordinary value when an argument has a default
-expression.
 
-Example: >
-  function Something(a = 10, b = 20, c = 30)
-  endfunction
-  call Something(1, v:none, 3)	    " b = 20
-<
 								*E989*
 Optional arguments with default expressions must occur after any mandatory
 arguments.  You can use "..." after all optional named arguments.
@@ -290,10 +267,10 @@ arguments.
 
 							*local-variables*
 Inside a function local variables can be used.  These will disappear when the
-function returns.  Global variables need to be accessed with "g:".
-Inside functions local variables are accessed without prepending anything.
-But you can also prepend "l:" if you like.  This is required for some reserved
-names, such as "count".
+function returns. Global variables need to be accessed with "g:". Inside
+functions local variables are accessed without prepending anything. But you
+can also prepend "l:" if you like.  This is required for some reserved names,
+such as "version".
 
 Example: >
   :function Table(title, ...)
@@ -327,16 +304,12 @@ This function can then be called with: >
 ==============================================================================
 
 2. Calling a function ~
-						*:cal* *:call* *E107*
+						*:cal* *:call* *E107* *E117*
 :[range]cal[l] {name}([arguments])
 		Call a function.  The name of the function and its arguments
 		are as specified with `:function`.  Up to 20 arguments can be
 		used.  The returned value is discarded.
-		In |Vim9| script using `:call` is optional, these two lines do
-		the same thing: >
-			call SomeFunc(arg)
-			SomeFunc(arg)
-<		Without a range and for functions that accept a range, the
+		Without a range and for functions that accept a range, the
 		function is called once.  When a range is given the cursor is
 		positioned at the start of the first line before executing the
 		function.
@@ -371,12 +344,6 @@ This function can then be called with: >
 	:4,8call GetDict().method()
 <		Here GetDict() gets the range but method() does not.
 
-								*E117*
-When a function cannot be found the error "E117: Unknown function" will be
-given.  If the function was using an autoload path or an autoload import and
-the script is a |Vim9| script, this may also be caused by the function not
-being exported.
-
 								*E132*
 The recursiveness of user functions is restricted with the |'maxfuncdepth'|
 option.
@@ -389,7 +356,7 @@ A function can also be called as part of evaluating an expression or when it
 is used as a method: >
 	let x = GetList()
 	let y = GetList()->Filter()
-
+<
 ==============================================================================
 
 3. Cleaning up in a function ~
@@ -457,13 +424,10 @@ When using many or large functions, it's possible to automatically define them
 only when they are used.  There are two methods: with an autocommand and with
 the "autoload" directory in 'runtimepath'.
 
-In |Vim9| script there is also an autoload mechanism for imported scripts, see
-|import-autoload|.
-
 
 Using an autocommand ~
 
-This is introduced in the user manual, section |51.4|.
+This is introduced in the user manual, section |41.14|.
 
 The autocommand is useful if you have a plugin that is a long Vim script file.
 You can define the autocommand and quickly quit the script with `:finish`.
@@ -481,7 +445,7 @@ The file "~/vim/bufnetfuncs.vim" should then define functions that start with
 
 Using an autoload script ~
 							*autoload* *E746*
-This is introduced in the user manual, section |52.2|.
+This is introduced in the user manual, section |41.15|.
 
 Using a script in the "autoload" directory is simpler, but requires using
 exactly the right file name.  A function that can be autoloaded has a name
@@ -489,29 +453,22 @@ like this: >
 
 	:call filename#funcname()
 
-These functions are always global, in Vim9 script "g:" needs to be used: >
-	:call g:filename#funcname()
-
 When such a function is called, and it is not defined yet, Vim will search the
 "autoload" directories in 'runtimepath' for a script file called
-"filename.vim".  For example "~/.vim/autoload/filename.vim".  That file should
-then define the function like this: >
+"filename.vim".  For example "~/.config/nvim/autoload/filename.vim".  That
+file should then define the function like this: >
 
 	function filename#funcname()
 	   echo "Done!"
 	endfunction
 
 If the file doesn't exist, Vim will also search in 'packpath' (under "start")
-to allow calling packages' functions from your .vimrc when the packages have
+to allow calling packages' functions from your |vimrc| when the packages have
 not been added to 'runtimepath' yet (see |packages|).
 
 The file name and the name used before the # in the function must match
 exactly, and the defined function must have the name exactly as it will be
-called.  In Vim9 script the "g:" prefix must be used: >
-	function g:filename#funcname()
-
-or for a compiled function: >
-	def g:filename#funcname()
+called.
 
 It is possible to use subdirectories.  Every # in the function name works like
 a path separator.  Thus when calling a function: >
@@ -543,12 +500,7 @@ Also note that if you have two script files, and one calls a function in the
 other and vice versa, before the used function is defined, it won't work.
 Avoid using the autoload functionality at the toplevel.
 
-In |Vim9| script you will get error *E1263* if you define a function with
-a "#" character in the name.  You should use a name without "#" and use
-`:export`.
-
-Hint: If you distribute a bunch of scripts you can pack them together with the
-|vimball| utility.  Also read the user manual |distribute-script|.
+Hint: If you distribute a bunch of scripts read |distribute-script|.
 
 
  vim:tw=78:ts=8:noet:ft=help:norl:
