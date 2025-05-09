@@ -1,4 +1,4 @@
-*uganda.txt*    For Vim version 9.1.  Last change: 2024 Aug 14
+*uganda.txt*    Nvim
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -15,8 +15,8 @@ below or visit the ICCF web site, available at these URLs:
 	https://www.vim.org/iccf/
 	https://www.iccf.nl/
 
-You can also sponsor the development of Vim, see |sponsor|.  The money goes to
-Uganda anyway.
+You can also sponsor the development of Vim.  Vim sponsors can vote for
+features.  See |sponsor|.  The money goes to Uganda anyway.
 
 The Open Publication License applies to the Vim documentation, see
 |manual-copyright|.
@@ -122,10 +122,6 @@ Note:
 
 - Once a change is included that goes under the GNU GPL, this forces all
   further changes to also be made under the GNU GPL or a compatible license.
-
-- If you distribute a modified version of Vim, you can include your name and
-  contact information with the "--with-modified-by" configure argument or the
-  MODIFIED_BY define.
 
 ==============================================================================
 Kibaale Children's Centre		*kcc* *Kibaale*  *charity*
